@@ -1,0 +1,43 @@
+# This file tells Git which files and folders to ignore.
+# Created by Unity's .gitignore default
+
+# Unity's local cache
+[Ll]ibrary/
+
+# Temporary files
+[Tt]emp/
+
+# Build outputs
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+
+# Log files
+[Ll]ogs/
+
+# Memory captures
+[Mm]emoryCaptures/
+
+# Recordings
+[Rr]ecordings/
+
+# User-specific settings
+[Uu]serSettings/
+
+# Visual Studio/Rider files
+.vs/
+.idea/
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Solution file
+*.sln
+*.csproj
