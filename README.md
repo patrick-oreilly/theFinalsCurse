@@ -27,7 +27,7 @@ The night before the NBA Finals, your basketball career hangs in the balance. Th
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Gameplay
 - **Precision Platforming** - Navigate challenging 2D puzzle rooms with tight controls
@@ -38,32 +38,6 @@ The night before the NBA Finals, your basketball career hangs in the balance. Th
 - **Gravity Flip** - Reverse gravity (player only) to reach impossible platforms
 - **Ball Teleport** - Throw the basketball and instantly teleport to its location
 - **Progressive Unlocks** - Gain new abilities as you advance through your career
-
-### Career Progression
-Progress through your basketball journey across 5 unique locations:
-
-| Level | Location | Challenge | Difficulty |
-|-------|----------|-----------|------------|
-| 1 | Moycullen Court | Spike Traps | ⭐ |
-| 2 | Endas hall | Rising Water | ⭐⭐ |
-| 3 | NUIG Kingfisher arena | Enemy mobs | ⭐⭐⭐ |
-| 4 | Duke Stadium | Time Pressure | ⭐⭐⭐⭐ |
-| 5 | NBA Finals | Ultimate Test | ⭐⭐⭐⭐⭐ |
-
-### 🎯 Difficulty Scaling
-- Dynamic difficulty increases by **33% per level**
-- Faster enemies, tighter time limits, and complex puzzles
-- Designed for both casual players and platformer veterans
----
-
-## Screenshots
-
-<div align="center">
-<img width="1152" height="896" alt="TheFinalsCurseGameplay" src="https://github.com/user-attachments/assets/af45048c-77fe-4118-9664-784d2ce7acb9" />
-
-
-
-</div>
 
 ---
 
