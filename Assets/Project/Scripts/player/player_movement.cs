@@ -4,7 +4,9 @@ using UnityEngine.InputSystem;
 public class player_movement : MonoBehaviour
 {
     public Rigidbody2D rb;
+    public Animator animator;
     bool isFacingRight = true;
+    public ParticleSystem smokeFX;
 
     [Header("Movement")]
     public float speed = 5f;
@@ -60,6 +62,9 @@ public class player_movement : MonoBehaviour
             flip();
 
         }
+        animator.SetFloat("yVelocity", rb.linearVelocityY);
+        animator.SetFloat("magnitude", rb.linearVelocity.magnitude);
+        animator.SetBool("isWallSliding", isWallSliding);
     }
 
     private void Gravity()
@@ -94,11 +99,16 @@ public class player_movement : MonoBehaviour
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 jumpsRemaining--;
+                JumpEffects();
+
             }
             else if (context.canceled && rb.linearVelocityY > 0)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
                 jumpsRemaining--;
+                JumpEffects();
+
+
 
             }
         }
@@ -108,6 +118,7 @@ public class player_movement : MonoBehaviour
             isWallJumping = true;
             rb.linearVelocity = new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y); // jump away from the wall
             wallJumpTimer = 0;
+            JumpEffects();
 
             if (transform.localScale.x != wallJumpDirection)
             {
@@ -119,6 +130,12 @@ public class player_movement : MonoBehaviour
 
             Invoke(nameof(cancelWallJump), wallJumpTime + 0.1f); // wall jump should last 0.5 seconds, jump again in 0.6
         }
+    }
+
+    private void JumpEffects()
+    {
+        animator.SetTrigger("jump");
+        smokeFX.Play();
     }
 
     private void GroundCheck()
@@ -142,6 +159,11 @@ public class player_movement : MonoBehaviour
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
+
+            if (rb.linearVelocityY == 0)
+            {
+                smokeFX.Play();
+            }
         }
     }
 
