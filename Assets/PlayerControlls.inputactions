@@ -23,6 +23,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Shoot",
+                    "type": "Button",
+                    "id": "947ded40-a950-481f-a6fe-9fb244e11a39",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -127,7 +136,18 @@
                 },
                 {
                     "name": "",
-                    "id": "7ac905be-8591-4419-8a85-003f4dcbb83b",
+                    "id": "6db3b7d1-da70-4203-8da7-ecf8436922e4",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cafa32a2-5b4e-4a47-af72-db1b3732391e",
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
@@ -138,12 +158,12 @@
                 },
                 {
                     "name": "",
-                    "id": "6db3b7d1-da70-4203-8da7-ecf8436922e4",
-                    "path": "<Keyboard>/w",
+                    "id": "567bc320-5293-4347-a6b5-9ebf0216921d",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Jump",
+                    "action": "Shoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
