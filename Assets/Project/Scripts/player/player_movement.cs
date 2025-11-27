@@ -39,24 +39,37 @@ public class player_movement : MonoBehaviour
 
     public Vector2 wallJumpPower = new Vector2(5f, 10f);
 
+    [Header("Fall Damage")]
+    public float fallDamageThreshold = 20f; // Increased to prevent damage from normal jumps
+    public int minFallDamage = 10;
+    public float damageMultiplier = 2f;
+    private float lastYVelocity;
+    private Health health;
+
     [Header("Gravity")]
     public float baseGravity = 2f;
-    public float maxFallSpeed = 18f;
+    public float maxFallSpeed = 30f; // Increased to allow for faster, dangerous falls
     public float fallSpeedMultiplier = 2.5f;
 
     void Start()
     {
-
+        health = GetComponent<Health>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Track velocity BEFORE physics updates change it (for landing detection)
+        // We do this at the start of Update or FixedUpdate, but since we check Grounding in Update, let's track it here.
+        // Actually, checking just before GroundCheck is safer.
+        
+        lastYVelocity = rb.linearVelocity.y;
+
         GroundCheck();
         processWallSlide();
         processWallJump();
         Gravity();
-        if (!isWallJumping)
+        if (!isWallJumping && !isKnockedBack)
         {
             rb.linearVelocity = new Vector2(moveX * speed, rb.linearVelocity.y);
             flip();
@@ -65,6 +78,21 @@ public class player_movement : MonoBehaviour
         animator.SetFloat("yVelocity", rb.linearVelocityY);
         animator.SetFloat("magnitude", rb.linearVelocity.magnitude);
         animator.SetBool("isWallSliding", isWallSliding);
+    }
+
+    private bool isKnockedBack = false;
+
+    public void ApplyKnockback(Vector2 force, float duration)
+    {
+        isKnockedBack = true;
+        rb.linearVelocity = Vector2.zero; // Stop current movement
+        rb.AddForce(force, ForceMode2D.Impulse);
+        Invoke(nameof(StopKnockback), duration);
+    }
+
+    private void StopKnockback()
+    {
+        isKnockedBack = false;
     }
 
     private void Gravity()
@@ -108,8 +136,6 @@ public class player_movement : MonoBehaviour
                 jumpsRemaining--;
                 JumpEffects();
 
-
-
             }
         }
         // Wall jump section
@@ -140,14 +166,35 @@ public class player_movement : MonoBehaviour
 
     private void GroundCheck()
     {
+        bool wasGrounded = isGrounded;
+        
         if (Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer))
         {
             jumpsRemaining = maxJumps;
             isGrounded = true;
+
+            // Check for Fall Damage upon landing
+            if (!wasGrounded && lastYVelocity < -fallDamageThreshold)
+            {
+                ApplyFallDamage(Mathf.Abs(lastYVelocity));
+            }
         }
         else
         {
             isGrounded = false;
+        }
+    }
+
+    private void ApplyFallDamage(float impactSpeed)
+    {
+        if (health != null)
+        {
+            // Calculate damage: (Impact Speed - Threshold) * Multiplier
+            float excessSpeed = impactSpeed - fallDamageThreshold;
+            int damage = minFallDamage + Mathf.RoundToInt(excessSpeed * damageMultiplier);
+            
+            Debug.Log($"Hard Landing! Speed: {impactSpeed}, Damage: {damage}");
+            health.TakeDamage(damage);
         }
     }
 
@@ -169,8 +216,9 @@ public class player_movement : MonoBehaviour
 
     private bool WallCheck()
     {
-        return Physics2D.OverlapBox(wallCheck.position, wallCheckSize, 0f, wallLayer);
-
+        bool hit = Physics2D.OverlapBox(wallCheck.position, wallCheckSize, 0f, wallLayer);
+        // Debug.Log($"WallCheck: {hit}"); // Uncomment to debug
+        return hit;
     }
 
     private void processWallSlide()
