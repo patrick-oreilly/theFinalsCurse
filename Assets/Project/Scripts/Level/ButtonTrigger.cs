@@ -7,12 +7,19 @@ public class ButtonTrigger : MonoBehaviour
     public Sprite pressedSprite; // Optional: Sprite to show when pressed
     public Sprite unpressedSprite; // Optional: Sprite to show when unpressed
     
+    [Header("Audio")]
+    public AudioClip clickSound;
+    private AudioSource audioSource;
+
     private bool isPressed = false;
     private SpriteRenderer sr;
 
     private void Start()
     {
         sr = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
         if (unpressedSprite == null && sr != null)
         {
             unpressedSprite = sr.sprite; // Save original sprite as unpressed
@@ -41,6 +48,11 @@ public class ButtonTrigger : MonoBehaviour
     private void ToggleButton()
     {
         isPressed = !isPressed;
+        
+        if (clickSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(clickSound);
+        }
         
         // Toggle the door
         if (linkedDoor != null)

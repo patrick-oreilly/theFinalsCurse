@@ -10,6 +10,17 @@ public class Door : MonoBehaviour
     private Vector3 closedPosition;
     private Vector3 targetPosition;
 
+    [Header("Audio")]
+    public AudioClip openSound;
+    public AudioClip closeSound;
+    private AudioSource audioSource;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+    }
+
     private void Start()
     {
         closedPosition = transform.position;
@@ -25,16 +36,26 @@ public class Door : MonoBehaviour
     public void Toggle()
     {
         isOpen = !isOpen;
-        Debug.Log(isOpen ? "Door Opening..." : "Door Closing...");
+        PlaySound(isOpen ? openSound : closeSound);
     }
 
     public void Open()
     {
+        if (!isOpen) PlaySound(openSound);
         isOpen = true;
     }
     
     public void Close()
     {
+        if (isOpen) PlaySound(closeSound);
         isOpen = false;
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 }

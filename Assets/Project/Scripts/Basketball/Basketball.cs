@@ -8,6 +8,7 @@ public class Basketball : MonoBehaviour
 
     [Header("Settings")]
     public int damage = 1;
+    public int goldenDamage = 50; // Configurable damage for golden ball
     public float pickupDelay = 0.5f; // Time before player can pick it up again
     private bool canBePickedUp = false;
 
@@ -16,11 +17,7 @@ public class Basketball : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
     }
 
-    private void Start()
-    {
-        // Allow pickup after a short delay so we don't catch it immediately upon throwing
-        Invoke(nameof(EnablePickup), pickupDelay);
-    }
+
 
     private void EnablePickup()
     {
@@ -165,22 +162,9 @@ public class Basketball : MonoBehaviour
             if (enemyHealth != null)
             {
                 // Golden ball could do more damage
-                int finalDamage = isGolden ? damage * 10 : damage;
+                int finalDamage = isGolden ? goldenDamage : damage;
                 enemyHealth.TakeDamage(finalDamage);
-                
-                // Shake Camera on hit
-                if (CameraShake.Instance != null)
-                {
-                    CameraShake.Instance.Shake(0.5f); // Medium shake for enemy hit
-                }
             }
-        }
-        else if (collision.relativeVelocity.magnitude > 8f) // Hard impact on walls/ground
-        {
-             if (CameraShake.Instance != null)
-             {
-                 CameraShake.Instance.Shake(0.1f); // Tiny shake for wall hits
-             }
         }
     }
 }

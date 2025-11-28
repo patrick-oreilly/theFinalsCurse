@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3c5c194ea490441c0af4e9ceb50f8c1c
+guid: 91031fa73160440afae500968327d980
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2995656217607338261
-    second: cursed_gym_background_0
+      213: -135948321459577844
+    second: lavaonland4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cursed_gym_background_0
+      name: lavaonland4_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1024
+        width: 112
+        height: 146
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: be60350ba8a4d66d0800000000000000
-      internalID: -2995656217607338261
+      spriteID: c0c579fc8b30d1ef0800000000000000
+      internalID: -135948321459577844
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cursed_gym_background_0: -2995656217607338261
+      lavaonland4_0: -135948321459577844
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
