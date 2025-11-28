@@ -51,30 +51,58 @@ public class player_movement : MonoBehaviour
     public float maxFallSpeed = 30f; // Increased to allow for faster, dangerous falls
     public float fallSpeedMultiplier = 2.5f;
 
+    [Header("Audio")]
+    public AudioClip jumpSound;
+    public AudioClip footstepSound;
+    public float footstepInterval = 0.3f;
+    private float footstepTimer;
+    private AudioSource audioSource;
+
     void Start()
     {
         health = GetComponent<Health>();
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Track velocity BEFORE physics updates change it (for landing detection)
-        // We do this at the start of Update or FixedUpdate, but since we check Grounding in Update, let's track it here.
-        // Actually, checking just before GroundCheck is safer.
-        
+        // ... (existing velocity tracking)
         lastYVelocity = rb.linearVelocity.y;
 
         GroundCheck();
         processWallSlide();
         processWallJump();
         Gravity();
+        
         if (!isWallJumping && !isKnockedBack)
         {
             rb.linearVelocity = new Vector2(moveX * speed, rb.linearVelocity.y);
             flip();
-
+            
+            // Footstep Logic
+            if (isGrounded && Mathf.Abs(moveX) > 0.1f)
+            {
+                footstepTimer -= Time.deltaTime;
+                if (footstepTimer <= 0)
+                {
+                    if (footstepSound != null && audioSource != null)
+                    {
+                        // Randomize pitch slightly for variety
+                        audioSource.pitch = Random.Range(0.9f, 1.1f);
+                        audioSource.PlayOneShot(footstepSound, 0.5f); // Lower volume
+                        audioSource.pitch = 1f; // Reset
+                    }
+                    footstepTimer = footstepInterval;
+                }
+            }
+            else
+            {
+                footstepTimer = 0.1f; // Reset so it plays immediately when starting to move
+            }
         }
+        
         animator.SetFloat("yVelocity", rb.linearVelocityY);
         animator.SetFloat("magnitude", rb.linearVelocity.magnitude);
         animator.SetBool("isWallSliding", isWallSliding);
@@ -114,10 +142,12 @@ public class player_movement : MonoBehaviour
         }
     }
 
+    public Vector2 currentInput;
+
     public void Move(InputAction.CallbackContext context)
     {
-        Vector2 movementInput = context.ReadValue<Vector2>();
-        moveX = movementInput.x;
+        currentInput = context.ReadValue<Vector2>();
+        moveX = currentInput.x;
     }
     public void Jump(InputAction.CallbackContext context)
     {
@@ -130,12 +160,11 @@ public class player_movement : MonoBehaviour
                 JumpEffects();
 
             }
-            else if (context.canceled && rb.linearVelocityY > 0)
+            else if (context.canceled && rb.linearVelocity.y > 0)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
-                jumpsRemaining--;
-                JumpEffects();
-
+                // jumpsRemaining--; // Wait, do we consume a jump on cancel? Usually not.
+                // JumpEffects(); // REMOVED: Don't play sound/effects on release
             }
         }
         // Wall jump section
@@ -162,6 +191,11 @@ public class player_movement : MonoBehaviour
     {
         animator.SetTrigger("jump");
         smokeFX.Play();
+        
+        if (jumpSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(jumpSound);
+        }
     }
 
     private void GroundCheck()

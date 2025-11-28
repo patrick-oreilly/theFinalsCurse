@@ -11,15 +11,20 @@ public class Health : MonoBehaviour
     public UnityEvent<int> OnHealthChanged;
     public UnityEvent OnDeath;
 
+    [Header("Audio")]
+    public AudioClip hurtSound;
+    public AudioClip deathSound;
+    private AudioSource audioSource;
+
+    [Header("Death Settings")]
+    public bool destroyOnDeath = true;
+    public float destroyDelay = 0f;
+
     private void Awake()
     {
         currentHealth = maxHealth;
-    }
-
-    private void Start()
-    {
-        // Initialize UI
-        OnHealthChanged?.Invoke(currentHealth);
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     public void TakeDamage(int amount)
@@ -31,6 +36,18 @@ public class Health : MonoBehaviour
 
         OnHealthChanged?.Invoke(currentHealth);
 
+        // Play Hurt Sound
+        if (hurtSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(hurtSound);
+        }
+
+        // Shake Camera if Player is hurt
+        if (gameObject.CompareTag("Player") && CameraShake.Instance != null)
+        {
+            CameraShake.Instance.Shake(0.3f); // Moderate shake for player damage
+        }
+
         if (currentHealth <= 0)
         {
             Die();
@@ -41,16 +58,21 @@ public class Health : MonoBehaviour
     {
         currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        Debug.Log($"{gameObject.name} healed {amount}. Current Health: {currentHealth}");
+
         OnHealthChanged?.Invoke(currentHealth);
     }
-
-    [Header("Death Settings")]
-    public bool destroyOnDeath = true;
-    public float destroyDelay = 0f; // Time to wait before destroying (for animation)
 
     private void Die()
     {
         Debug.Log($"{gameObject.name} died!");
+        
+        if (deathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+
         OnDeath?.Invoke();
         
         if (gameObject.CompareTag("Player"))

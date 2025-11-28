@@ -94,6 +94,15 @@ public class GameManager : MonoBehaviour
         Debug.Log("Checkpoint Updated!");
     }
 
+    [Header("Death Hints")]
+    public string[] deathHints = {
+        "You can't fake your way through pain — learn from it.",
+        "Timing beats talent.",
+        "Watch your step, youngblood.",
+        "The curse feeds on mistakes.",
+        "Defense wins championships... stay alive."
+    };
+
     public void PlayerDied()
     {
         currentLives--;
@@ -104,6 +113,13 @@ public class GameManager : MonoBehaviour
         if (livesUI != null)
         {
             livesUI.UpdateLives(currentLives);
+        }
+
+        // Show Death Hint from LeBron
+        if (currentLives > 0 && DialogueManager.Instance != null)
+        {
+            string randomHint = deathHints[Random.Range(0, deathHints.Length)];
+            DialogueManager.Instance.ShowDialogue("Spectral LeBron", randomHint, 4f);
         }
 
         if (currentLives > 0)
@@ -153,7 +169,11 @@ public class GameManager : MonoBehaviour
                 rb.simulated = true;
                 rb.linearVelocity = Vector2.zero;
             }
-            if (shooter != null) shooter.enabled = true;
+            if (shooter != null) 
+            {
+                shooter.enabled = true;
+                shooter.ResetAmmo(); // Ensure player has the ball back
+            }
 
             // 5. Reset Health
             Health playerHealth = player.GetComponent<Health>();
@@ -161,28 +181,52 @@ public class GameManager : MonoBehaviour
             {
                 playerHealth.Heal(playerHealth.maxHealth); 
             }
+
+            // 6. Notify Listeners (Traps, etc.)
+            OnPlayerRespawn?.Invoke();
         }
     }
+
+    public static event System.Action OnPlayerRespawn;
 
     private void GameOver()
     {
         Debug.Log("GAME OVER");
-        // TODO: Show Game Over Screen
-        // Time.timeScale = 0; // Pause game
+        
+        GameMenus menus = FindFirstObjectByType<GameMenus>();
+        if (menus != null)
+        {
+            menus.ShowGameOver();
+        }
+        else
+        {
+            Debug.LogWarning("GameMenus script not found in scene!");
+        }
     }
+
+    [Header("Outro")]
+    public bool isFinalLevel;
+    public OutroManager outroManager;
 
     public void LevelComplete()
     {
         Debug.Log("CONGRATULATIONS! LEVEL FINISHED!");
         
-        WinScreenUI winScreen = FindFirstObjectByType<WinScreenUI>();
-        if (winScreen != null)
+        if (isFinalLevel && outroManager != null)
         {
-            winScreen.ShowWinScreen();
+            outroManager.PlayOutro();
         }
         else
         {
-            Debug.LogWarning("WinScreenUI not found in the scene!");
+            WinScreenUI winScreen = FindFirstObjectByType<WinScreenUI>();
+            if (winScreen != null)
+            {
+                winScreen.ShowWinScreen();
+            }
+            else
+            {
+                Debug.LogWarning("WinScreenUI not found in the scene!");
+            }
         }
     }
 }

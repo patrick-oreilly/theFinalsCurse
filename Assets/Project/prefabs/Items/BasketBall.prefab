@@ -479,10 +479,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Basketball
   damage: 1
+  goldenDamage: 50
   pickupDelay: 0.5
   recallSpeed: 20
   spriteRenderer: {fileID: 3417357090632488235}
   trailRenderer: {fileID: 0}
+  bounceEffectPrefab: {fileID: 0}
+  bounceSound: {fileID: 8300000, guid: 5a92971501080472aa985826dd6a1820, type: 3}
 --- !u!50 &176919747323424347
 Rigidbody2D:
   serializedVersion: 5
