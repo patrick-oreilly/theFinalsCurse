@@ -95,12 +95,15 @@ public class GameManager : MonoBehaviour
     }
 
     [Header("Death Hints")]
+    public Sprite lebronPortrait; // Drag the LeBron sprite here in the Inspector
     public string[] deathHints = {
-        "You can't fake your way through pain — learn from it.",
-        "Timing beats talent.",
-        "Watch your step, youngblood.",
-        "The curse feeds on mistakes.",
-        "Defense wins championships... stay alive."
+        "Hold 'Space' to jump higher.",
+        "Press 'Shift' to dash through enemies.",
+        "Your ball comes back automatically - use it often!",
+        "Aim for the head to stun enemies.",
+        "You can bounce the ball off walls to hit tricky switches.",
+        "Don't rush. Watch the enemy patrol patterns.",
+        "Collect all coins to unlock the Golden Ball."
     };
 
     public void PlayerDied()
@@ -119,7 +122,7 @@ public class GameManager : MonoBehaviour
         if (currentLives > 0 && DialogueManager.Instance != null)
         {
             string randomHint = deathHints[Random.Range(0, deathHints.Length)];
-            DialogueManager.Instance.ShowDialogue("Spectral LeBron", randomHint, 4f);
+            DialogueManager.Instance.ShowDialogue("Spectral LeBron", randomHint, lebronPortrait, 4f);
         }
 
         if (currentLives > 0)

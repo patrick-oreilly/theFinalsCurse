@@ -20,6 +20,8 @@ public class GameMenus : MonoBehaviour
         if (gameOverUI != null) gameOverUI.SetActive(false);
     }
 
+
+
     // Call this from PlayerInput "Pause" action
     public void OnPause(InputAction.CallbackContext context)
     {
@@ -66,5 +68,11 @@ public class GameMenus : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    public void QuitGame()
+    {
+        Debug.Log("Quitting Game...");
+        Application.Quit();
     }
 }

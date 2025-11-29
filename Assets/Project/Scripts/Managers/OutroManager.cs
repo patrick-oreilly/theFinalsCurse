@@ -166,14 +166,19 @@ public class OutroManager : MonoBehaviour
         // 2. Show Text
         epiloguePanel.SetActive(true);
         epilogueQuote.text = "“Sometimes, you don’t beat the curse — you outplay it.”";
-        epilogueQuote.alpha = 0;
+        
+        // Set initial alpha to 0
+        Color textColor = epilogueQuote.color;
+        textColor.a = 0;
+        epilogueQuote.color = textColor;
         
         // Fade text in
         float t = 0;
         while(t < 1)
         {
             t += Time.deltaTime;
-            epilogueQuote.alpha = t;
+            textColor.a = t;
+            epilogueQuote.color = textColor;
             yield return null;
         }
         

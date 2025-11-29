@@ -54,4 +54,19 @@ public class AudioManager : MonoBehaviour
     public void PlayCoinSound() => PlaySFX(coinSound, 0.8f);
     public void PlayWinSound() => PlaySFX(winSound, 1f);
     public void PlayButtonSound() => PlaySFX(buttonSound, 1f);
+
+    public void SetMusicVolume(float volume)
+    {
+        if (musicSource != null) musicSource.volume = volume;
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        if (sfxSource != null) sfxSource.volume = volume;
+    }
+
+    public void SetMasterVolume(float volume)
+    {
+        AudioListener.volume = volume;
+    }
 }

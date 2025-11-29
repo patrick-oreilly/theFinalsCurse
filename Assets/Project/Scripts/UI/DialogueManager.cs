@@ -8,6 +8,7 @@ public class DialogueManager : MonoBehaviour
 
     [Header("UI Components")]
     public GameObject dialoguePanel;
+    public UnityEngine.UI.Image portraitImage; // Reference to the UI Image
     public TextMeshProUGUI dialogueText;
     public TextMeshProUGUI speakerNameText;
 
@@ -24,13 +25,28 @@ public class DialogueManager : MonoBehaviour
         HideDialogue();
     }
 
-    public void ShowDialogue(string speaker, string message, float duration = 3f)
+    public void ShowDialogue(string speaker, string message, Sprite portrait = null, float duration = 3f)
     {
         if (dialoguePanel != null)
         {
             dialoguePanel.SetActive(true);
             
             if (speakerNameText != null) speakerNameText.text = speaker;
+            
+            // Set the portrait if provided
+            if (portraitImage != null)
+            {
+                if (portrait != null)
+                {
+                    portraitImage.sprite = portrait;
+                    portraitImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    // Hide image if no sprite is provided
+                    portraitImage.gameObject.SetActive(false); 
+                }
+            }
             
             if (typingCoroutine != null) StopCoroutine(typingCoroutine);
             typingCoroutine = StartCoroutine(TypeMessage(message, duration));
