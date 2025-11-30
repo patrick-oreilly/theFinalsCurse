@@ -27,7 +27,7 @@ public class TrapRoom : MonoBehaviour
     private void ActivateTrap()
     {
         isTrapActive = true;
-        Debug.Log("Trap Activated! Run!");
+        // Debug.Log("Trap Activated! Run!");
 
         if (door != null && closeDoorOnEnter)
         {

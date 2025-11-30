@@ -20,11 +20,14 @@ public class GameMenus : MonoBehaviour
         if (gameOverUI != null) gameOverUI.SetActive(false);
     }
 
+
+
     // Call this from PlayerInput "Pause" action
     public void OnPause(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
+            Debug.Log("Pause Input Received!");
             if (isPaused)
             {
                 Resume();
@@ -38,21 +41,44 @@ public class GameMenus : MonoBehaviour
 
     public void Resume()
     {
-        if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
+        if (pauseMenuUI != null) 
+        {
+            pauseMenuUI.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("Pause Menu UI is NOT assigned in the Inspector!");
+        }
         Time.timeScale = 1f;
         isPaused = false;
     }
 
     public void Pause()
     {
-        if (pauseMenuUI != null) pauseMenuUI.SetActive(true);
+        if (pauseMenuUI != null) 
+        {
+            pauseMenuUI.SetActive(true);
+            Debug.Log("Pause Menu Activated");
+        }
+        else
+        {
+            Debug.LogError("Pause Menu UI is NOT assigned in the Inspector!");
+        }
         Time.timeScale = 0f;
         isPaused = true;
     }
 
     public void ShowGameOver()
     {
-        if (gameOverUI != null) gameOverUI.SetActive(true);
+        if (gameOverUI != null) 
+        {
+            gameOverUI.SetActive(true);
+            Debug.Log("Game Over Menu Activated");
+        }
+        else
+        {
+            Debug.LogError("Game Over UI is NOT assigned in the Inspector!");
+        }
         Time.timeScale = 0f; // Stop the game
     }
 
@@ -66,5 +92,12 @@ public class GameMenus : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    public void QuitGame()
+    {
+        Time.timeScale = 1f;
+        // Debug.Log("Quit Game");
+        Application.Quit();
     }
 }

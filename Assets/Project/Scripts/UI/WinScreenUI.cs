@@ -33,6 +33,6 @@ public class WinScreenUI : MonoBehaviour
     {
         Time.timeScale = 1f;
         Application.Quit();
-        Debug.Log("Quit Game");
+        // Debug.Log("Quit Game");
     }
 }

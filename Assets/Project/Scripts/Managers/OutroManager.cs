@@ -1,49 +1,49 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro; // Updated to TMP
 using UnityEngine.SceneManagement;
 
 public class OutroManager : MonoBehaviour
 {
     [Header("UI References")]
-    public CanvasGroup fadeOverlay; // For white/black flashes
-    public Image fadeImage; // To change color of fade
-    public GameObject dialogueBox;
-    public Text speakerNameText;
-    public Text dialogueText;
-    public GameObject epiloguePanel;
-    public Text epilogueQuote;
-    public GameObject pressToContinueText;
+    public CanvasGroup backgroundFade; // The black background panel
+    public TextMeshProUGUI textComponent; // Updated to TMP
+    public GameObject pressToContinueObj; // The prompt at the end
 
-    [Header("Scene Objects")]
-    public GameObject player;
-    public GameObject leBronSpectral;
-    public GameObject realWorldEnvironment; // The "Game 7" visuals
-    public GameObject lockerRoomEnvironment;
-    public GameObject cursedRealmEnvironment;
-    public GameObject basketball; // The ball to glow/shoot
+    [Header("Settings")]
+    public float typingSpeed = 0.05f;
+    public float backspaceSpeed = 0.03f;
+    public float lineDisplayTime = 2.5f;
+    public float fadeDuration = 1.0f;
 
     [Header("Audio")]
     public AudioSource audioSource;
-    public AudioClip silenceClip; // Or just stop audio
-    public AudioClip commentaryClip;
-    public AudioClip crowdEruptClip;
-    public AudioClip swishClip;
-    public AudioClip leBronVoice1;
-    public AudioClip leBronVoice2;
-    public AudioClip leBronVoice3;
+    public AudioClip typingSound;
+    public AudioClip crowdCheerSound; // For the "Waking up" moment
 
-    private bool waitingForInput = false;
+    [Header("Narrative Content")]
+    [TextArea(2, 5)]
+    public string[] narrativeLines = new string[] {
+        "The echo of the swish fades into pure silence...",
+        "LeBron: \"You did it. You played through every moment.\"",
+        "\"The curse only showed what you never wanted to see.\"",
+        "The arena fades. Blinding light returns.",
+        "\"He's waking up! The rookie is back!\"",
+        "LeBron: \"One more shot.\"",
+        "SWISH.",
+        "\"The curse was never meant to break you...\"",
+        "\"...it was meant to teach you how to play through it.\"",
+        "Sometimes, you don't beat the curse — you outplay it."
+    };
 
     private void Start()
     {
-        // For testing, you might want to call PlayOutro() directly
-        // PlayOutro();
+        if (backgroundFade) backgroundFade.alpha = 0;
+        if (textComponent) textComponent.text = "";
+        if (pressToContinueObj) pressToContinueObj.SetActive(false);
         
-        // Ensure UI is hidden at start
-        if(dialogueBox) dialogueBox.SetActive(false);
-        if(epiloguePanel) epiloguePanel.SetActive(false);
-        if(leBronSpectral) leBronSpectral.SetActive(false);
+        // Auto-play for testing or if loaded as a scene
+        PlayOutro();
     }
 
     public void PlayOutro()
@@ -53,193 +53,104 @@ public class OutroManager : MonoBehaviour
 
     private IEnumerator OutroSequence()
     {
-        // --- Scene 1: The Silence After the Shot ---
-        yield return StartCoroutine(Scene1_Silence());
-
-        // --- Scene 2: The Return ---
-        yield return StartCoroutine(Scene2_TheReturn());
-
-        // --- Scene 3: The Locker Room ---
-        yield return StartCoroutine(Scene3_LockerRoom());
-
-        // --- Scene 4: Epilogue ---
-        yield return StartCoroutine(Scene4_Epilogue());
-    }
-
-    private IEnumerator Scene1_Silence()
-    {
-        // 1. Flash White
-        fadeImage.color = Color.white;
-        yield return StartCoroutine(Fade(0, 1, 0.1f)); // Fast fade out to white
-        
-        // 2. Setup Scene
-        // Hide crowd/enemies, stop music
-        AudioManager.Instance.musicSource.Stop();
-        if(realWorldEnvironment) realWorldEnvironment.SetActive(false);
-        if(lockerRoomEnvironment) lockerRoomEnvironment.SetActive(false);
-        
-        yield return new WaitForSeconds(1f);
-        
-        yield return StartCoroutine(Fade(1, 0, 2f)); // Slow fade in to scene
-
-        // 3. LeBron Appears
-        if(leBronSpectral) leBronSpectral.SetActive(true);
-        
-        // 4. Dialogue
-        yield return StartCoroutine(ShowDialogue("LeBron", "You did it. You played through every moment the curse twisted. You faced yourself.", leBronVoice1));
-        yield return StartCoroutine(ShowDialogue("Player", "But… this wasn’t just the Finals, was it?", null));
-        yield return StartCoroutine(ShowDialogue("LeBron", "No. This was your life — your fears, your pride, your doubt. The curse only showed what you never wanted to see.", leBronVoice2));
-
-        // 5. Toss Ball (Animation or just enable glowing ball)
-        // Assume animation plays here
-        yield return new WaitForSeconds(2f);
-    }
-
-    private IEnumerator Scene2_TheReturn()
-    {
-        // 1. Fade to White (Blinding light)
-        fadeImage.color = Color.white;
-        yield return StartCoroutine(Fade(0, 1, 1f));
-
-        // 2. Setup Real World Scene
-        if(leBronSpectral) leBronSpectral.SetActive(false);
-        if(realWorldEnvironment) realWorldEnvironment.SetActive(true);
-        
-        // Play Commentary
-        audioSource.PlayOneShot(commentaryClip);
-        
-        yield return new WaitForSeconds(2f); // Wait for commentary to build
-        
-        yield return StartCoroutine(Fade(1, 0, 0.5f)); // Fade in
-
-        // 3. The Shot
-        // Slow motion effect
-        Time.timeScale = 0.3f;
-        
-        // Wait for "One more shot"
-        yield return new WaitForSecondsRealtime(2f);
-        audioSource.PlayOneShot(leBronVoice3); // "One more shot"
-        
-        // Simulate shot (or wait for player input if interactive)
-        // For narrative flow, we'll automate it or prompt simple input
-        
-        yield return new WaitForSecondsRealtime(1f);
-        
-        // SWISH
-        audioSource.PlayOneShot(swishClip);
-        Time.timeScale = 1f; // Restore time
-        
-        yield return new WaitForSeconds(0.2f);
-        audioSource.PlayOneShot(crowdEruptClip);
-        
-        yield return new WaitForSeconds(3f); // Let the victory soak in
-    }
-
-    private IEnumerator Scene3_LockerRoom()
-    {
-        // 1. Fade to Black (Time passing)
-        fadeImage.color = Color.black;
-        yield return StartCoroutine(Fade(0, 1, 1f));
-        
-        if(realWorldEnvironment) realWorldEnvironment.SetActive(false);
-        if(lockerRoomEnvironment) lockerRoomEnvironment.SetActive(true);
-        
-        yield return new WaitForSeconds(1f);
-        yield return StartCoroutine(Fade(1, 0, 1f));
-
-        // 2. Reflection Dialogue
-        yield return StartCoroutine(ShowDialogue("LeBron", "The curse was never meant to break you. It was meant to teach you how to play through it.", null));
-        
-        // 3. Fade out LeBron (if visible in reflection)
-        yield return new WaitForSeconds(2f);
-    }
-
-    private IEnumerator Scene4_Epilogue()
-    {
-        // 1. Fade to Black
-        fadeImage.color = Color.black;
-        yield return StartCoroutine(Fade(0, 1, 2f));
-        
-        if(lockerRoomEnvironment) lockerRoomEnvironment.SetActive(false);
-        if(cursedRealmEnvironment) cursedRealmEnvironment.SetActive(true); // Empty court
-
-        // 2. Show Text
-        epiloguePanel.SetActive(true);
-        epilogueQuote.text = "“Sometimes, you don’t beat the curse — you outplay it.”";
-        epilogueQuote.alpha = 0;
-        
-        // Fade text in
-        float t = 0;
-        while(t < 1)
+        // 1. Fade everything to black (Only if panel is assigned)
+        if (backgroundFade != null)
         {
-            t += Time.deltaTime;
-            epilogueQuote.alpha = t;
-            yield return null;
+            yield return StartCoroutine(FadeCanvas(backgroundFade, 0, 1, fadeDuration));
         }
         
-        yield return new WaitForSeconds(3f);
-        
-        // 3. Show "Press [Shoot] to Continue"
-        pressToContinueText.SetActive(true);
-        waitingForInput = true;
-        
-        while(waitingForInput)
+        // 2. Loop through each narrative line
+        foreach (string line in narrativeLines)
         {
-            if(Input.GetButtonDown("Fire1") || Input.GetKeyDown(KeyCode.Space)) // Assuming Fire1 is shoot
+            // Type In
+            yield return StartCoroutine(TypeMessage(line));
+
+            // Wait
+            yield return new WaitForSeconds(lineDisplayTime);
+
+            // Erase (Left to Right effect)
+            yield return StartCoroutine(UntypeMessage());
+            
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // 3. Epilogue / Continue Prompt
+        if (crowdCheerSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(crowdCheerSound);
+        }
+
+        if (pressToContinueObj) pressToContinueObj.SetActive(true);
+
+        // Wait for input
+        bool waiting = true;
+        while(waiting)
+        {
+            if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
             {
-                waitingForInput = false;
+                waiting = false;
+            }
+            if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                waiting = false;
             }
             yield return null;
         }
-        
-        // 4. Trigger New Game+
+
         StartNewGamePlus();
     }
 
-    private IEnumerator ShowDialogue(string speaker, string text, AudioClip voiceClip)
+    private IEnumerator TypeMessage(string message)
     {
-        dialogueBox.SetActive(true);
-        speakerNameText.text = speaker;
-        dialogueText.text = "";
-        
-        if(voiceClip) audioSource.PlayOneShot(voiceClip);
-
-        // Typewriter effect
-        foreach(char c in text)
+        textComponent.text = "";
+        foreach (char letter in message)
         {
-            dialogueText.text += c;
-            yield return new WaitForSeconds(0.02f);
+            textComponent.text += letter;
+            if (audioSource != null && typingSound != null) audioSource.PlayOneShot(typingSound);
+            yield return new WaitForSeconds(typingSpeed);
         }
-        
-        // Wait for player to advance
-        while(!Input.GetButtonDown("Fire1") && !Input.GetKeyDown(KeyCode.Space))
-        {
-            yield return null;
-        }
-        
-        dialogueBox.SetActive(false);
     }
 
-    private IEnumerator Fade(float startAlpha, float endAlpha, float duration)
+    private IEnumerator UntypeMessage()
     {
+        string originalText = textComponent.text;
+        int length = originalText.Length;
+
+        for (int i = 0; i <= length; i++)
+        {
+            // Create two parts: Invisible (eaten) and Visible (remaining)
+            string invisiblePart = originalText.Substring(0, i);
+            string visiblePart = originalText.Substring(i);
+
+            // Use Rich Text to make the first part transparent but keep its width
+            textComponent.text = $"<color=#00000000>{invisiblePart}</color>{visiblePart}";
+            
+            yield return new WaitForSeconds(backspaceSpeed);
+        }
+        textComponent.text = "";
+    }
+
+    private IEnumerator FadeCanvas(CanvasGroup cg, float start, float end, float duration)
+    {
+        if (cg == null) yield break;
+
         float t = 0;
-        while(t < 1)
+        while (t < 1)
         {
             t += Time.deltaTime / duration;
-            fadeOverlay.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
+            cg.alpha = Mathf.Lerp(start, end, t);
             yield return null;
         }
-        fadeOverlay.alpha = endAlpha;
+        cg.alpha = end;
     }
 
     private void StartNewGamePlus()
     {
-        Debug.Log("Starting New Game+");
-        // Set difficulty flag
+        // Debug.Log("Starting New Game+");
         PlayerPrefs.SetInt("NewGamePlus", 1);
         PlayerPrefs.Save();
         
-        // Reload first level or Main Menu
-        SceneManager.LoadScene(0); // Assuming 0 is Main Menu or First Level
+        // Return to Main Menu (Scene 0)
+        SceneManager.LoadScene(0); 
     }
 }

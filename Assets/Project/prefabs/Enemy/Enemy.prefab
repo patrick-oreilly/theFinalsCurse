@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 931374714255962224}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.132, y: -0.175, z: 0}
+  m_LocalPosition: {x: 0.099, y: -0.168, z: 0}
   m_LocalScale: {x: 2.5832288, y: 1.1647409, z: 1.479036}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -183,8 +183,10 @@ MonoBehaviour:
   OnDeath:
     m_PersistentCalls:
       m_Calls: []
+  hurtSound: {fileID: 8300000, guid: 44b612d21288d44bbbd2b32dca1883be, type: 3}
+  deathSound: {fileID: 8300000, guid: ad481af1c82954318bcb24e251791945, type: 3}
   destroyOnDeath: 1
-  destroyDelay: 1
+  destroyDelay: 1.5
 --- !u!114 &779193713733236635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,10 +220,11 @@ MonoBehaviour:
   patrolSpeed: 2
   chaseSpeed: 4
   checkRadius: 0.2
+  wallCheckDistance: 1
   groundDetection: {fileID: 6996484498717364309}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 72
   detectionRange: 5
   playerLayer:
     serializedVersion: 2
