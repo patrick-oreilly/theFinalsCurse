@@ -14,6 +14,15 @@ public class HealthUI : MonoBehaviour
 
     private void Start()
     {
+        if (playerHealth == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerHealth = player.GetComponent<Health>();
+            }
+        }
+
         if (playerHealth != null)
         {
             healthSlider.maxValue = playerHealth.maxHealth;

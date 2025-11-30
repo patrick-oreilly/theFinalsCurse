@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,16 @@ public class GameManager : MonoBehaviour
     private int currentLives;
     public Transform currentCheckpoint;
     public GameObject player;
+    
+    [Header("UI References")]
+    public GameMenus gameMenus; // Drag 'menus' object here
+
+    [Header("Tutorial & Narrative")]
+    [TextArea] public string introLine1 = "Whoa—easy! You're not one of those... things. Thank god. I thought I was the only one down here.";
+    [TextArea] public string introLine2 = "One minute I'm lacing up for Game 7, the next... I'm falling. What is this place? And why is everything trying to kill us?";
+    [TextArea] public string controlsHint = "Listen up. A and D to move. W or Space to jump. E to shoot. Use Up and Down arrows to aim your shot. Press T to toggle the aim line. Don't miss.";
+    
+    private static bool hasShownIntro = false; // Static so it persists across scene reloads if needed, but for now just prevents respawn repeats
 
     void Start()
     {
@@ -55,6 +66,13 @@ public class GameManager : MonoBehaviour
         progressBar.value = 0;
 
         Coin.OnCoinCollect += IncreaseProgress;
+
+        Coin.OnCoinCollect += IncreaseProgress;
+    }
+
+    private void OnDestroy()
+    {
+        Coin.OnCoinCollect -= IncreaseProgress;
     }
 
     // Update is called once per frame
@@ -71,7 +89,7 @@ public class GameManager : MonoBehaviour
         // Check if we reached the calculated max
         if (progress >= maxProgress)
         {
-            Debug.Log("Level Complete! Golden Ball Unlocked!");
+            // Debug.Log("Level Complete! Golden Ball Unlocked!");
             
             // Enable Golden Mode on Player
             if (playerShooter != null)
@@ -91,25 +109,20 @@ public class GameManager : MonoBehaviour
     public void SetCheckpoint(Transform newCheckpoint)
     {
         currentCheckpoint = newCheckpoint;
-        Debug.Log("Checkpoint Updated!");
+        // Debug.Log("Checkpoint Updated!");
     }
 
     [Header("Death Hints")]
     public Sprite lebronPortrait; // Drag the LeBron sprite here in the Inspector
     public string[] deathHints = {
-        "Hold 'Space' to jump higher.",
-        "Press 'Shift' to dash through enemies.",
-        "Your ball comes back automatically - use it often!",
-        "Aim for the head to stun enemies.",
-        "You can bounce the ball off walls to hit tricky switches.",
-        "Don't rush. Watch the enemy patrol patterns.",
-        "Collect all coins to unlock the Golden Ball."
+        "Watch the drop... fall damage is real.",
+        "Pro Tip: Throw the ball OVER enemies, then recall it through them to hit multiple at once!"
     };
 
     public void PlayerDied()
     {
         currentLives--;
-        Debug.Log($"Player Died! Lives remaining: {currentLives}");
+        // Debug.Log($"Player Died! Lives remaining: {currentLives}");
 
         // Update Lives UI
         LivesUI livesUI = FindFirstObjectByType<LivesUI>();
@@ -118,21 +131,34 @@ public class GameManager : MonoBehaviour
             livesUI.UpdateLives(currentLives);
         }
 
-        // Show Death Hint from LeBron
-        if (currentLives > 0 && DialogueManager.Instance != null)
-        {
-            string randomHint = deathHints[Random.Range(0, deathHints.Length)];
-            DialogueManager.Instance.ShowDialogue("Spectral LeBron", randomHint, lebronPortrait, 4f);
-        }
-
         if (currentLives > 0)
         {
+            // Show Random Death Hint
+            if (DialogueManager.Instance != null)
+            {
+                string randomHint = deathHints[Random.Range(0, deathHints.Length)];
+                DialogueManager.Instance.ShowDialogue("LeBron", randomHint, lebronPortrait, 4f);
+            }
             RespawnPlayer();
         }
         else
         {
-            GameOver();
+            // Final Death - Special Message
+            StartCoroutine(GameOverRoutine());
         }
+    }
+
+    private System.Collections.IEnumerator GameOverRoutine()
+    {
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.ShowDialogue("LeBron", "I really believed in you, kid...", lebronPortrait, 3f);
+        }
+        
+        // Wait for the message to be read before showing the Game Over screen
+        yield return new WaitForSeconds(3f);
+        
+        GameOver();
     }
 
     private void RespawnPlayer()
@@ -194,30 +220,38 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
-        Debug.Log("GAME OVER");
+        // Debug.Log("GAME OVER");
         
-        GameMenus menus = FindFirstObjectByType<GameMenus>();
-        if (menus != null)
+        if (gameMenus != null)
         {
-            menus.ShowGameOver();
+            gameMenus.ShowGameOver();
         }
         else
         {
-            Debug.LogWarning("GameMenus script not found in scene!");
+            // Fallback if not assigned
+            GameMenus menus = FindFirstObjectByType<GameMenus>();
+            if (menus != null)
+            {
+                menus.ShowGameOver();
+            }
+            else
+            {
+                Debug.LogWarning("GameMenus script not found in scene!");
+            }
         }
     }
 
     [Header("Outro")]
     public bool isFinalLevel;
-    public OutroManager outroManager;
+    public string outroSceneName = "Outro"; // Type the name of your scene here
 
     public void LevelComplete()
     {
-        Debug.Log("CONGRATULATIONS! LEVEL FINISHED!");
+        // Debug.Log("CONGRATULATIONS! LEVEL FINISHED!");
         
-        if (isFinalLevel && outroManager != null)
+        if (isFinalLevel)
         {
-            outroManager.PlayOutro();
+            SceneManager.LoadScene(outroSceneName);
         }
         else
         {

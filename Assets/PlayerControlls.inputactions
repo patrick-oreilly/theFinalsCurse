@@ -50,6 +50,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "IncreaseArc",
+                    "type": "Button",
+                    "id": "bd1f586f-afdf-4937-8d5c-01b7b6f6f824",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DecreaseArc",
+                    "type": "Button",
+                    "id": "e461331d-8f1f-46d7-a0d6-0bac59773e10",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -143,17 +161,6 @@
                 },
                 {
                     "name": "",
-                    "id": "326a1ba1-bdb5-4e55-9db3-fc393263a5b1",
-                    "path": "<Keyboard>/upArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "cafa32a2-5b4e-4a47-af72-db1b3732391e",
                     "path": "<Keyboard>/space",
                     "interactions": "",
@@ -165,8 +172,19 @@
                 },
                 {
                     "name": "",
+                    "id": "c6d41253-af5e-4250-9def-45970e7b8e82",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "567bc320-5293-4347-a6b5-9ebf0216921d",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -193,6 +211,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleAim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c7f619da-ce5d-492e-9359-ac4c9ddce659",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "IncreaseArc",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8b3988e6-6f33-4c9f-afa6-f858ff7909e5",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DecreaseArc",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

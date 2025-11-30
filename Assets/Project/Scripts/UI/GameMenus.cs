@@ -27,6 +27,7 @@ public class GameMenus : MonoBehaviour
     {
         if (context.performed)
         {
+            Debug.Log("Pause Input Received!");
             if (isPaused)
             {
                 Resume();
@@ -40,21 +41,44 @@ public class GameMenus : MonoBehaviour
 
     public void Resume()
     {
-        if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
+        if (pauseMenuUI != null) 
+        {
+            pauseMenuUI.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("Pause Menu UI is NOT assigned in the Inspector!");
+        }
         Time.timeScale = 1f;
         isPaused = false;
     }
 
     public void Pause()
     {
-        if (pauseMenuUI != null) pauseMenuUI.SetActive(true);
+        if (pauseMenuUI != null) 
+        {
+            pauseMenuUI.SetActive(true);
+            Debug.Log("Pause Menu Activated");
+        }
+        else
+        {
+            Debug.LogError("Pause Menu UI is NOT assigned in the Inspector!");
+        }
         Time.timeScale = 0f;
         isPaused = true;
     }
 
     public void ShowGameOver()
     {
-        if (gameOverUI != null) gameOverUI.SetActive(true);
+        if (gameOverUI != null) 
+        {
+            gameOverUI.SetActive(true);
+            Debug.Log("Game Over Menu Activated");
+        }
+        else
+        {
+            Debug.LogError("Game Over UI is NOT assigned in the Inspector!");
+        }
         Time.timeScale = 0f; // Stop the game
     }
 
@@ -72,7 +96,8 @@ public class GameMenus : MonoBehaviour
 
     public void QuitGame()
     {
-        Debug.Log("Quitting Game...");
+        Time.timeScale = 1f;
+        // Debug.Log("Quit Game");
         Application.Quit();
     }
 }

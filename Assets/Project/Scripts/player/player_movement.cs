@@ -40,11 +40,12 @@ public class player_movement : MonoBehaviour
     public Vector2 wallJumpPower = new Vector2(5f, 10f);
 
     [Header("Fall Damage")]
-    public float fallDamageThreshold = 20f; // Increased to prevent damage from normal jumps
+    public float fallDamageThreshold = 15f; // Lowered from 20f to make it easier to trigger
     public int minFallDamage = 10;
     public float damageMultiplier = 2f;
-    private float lastYVelocity;
     private Health health;
+    // Track velocity while airborne to detect impact speed even if physics zeroes velocity on landing
+    private float airVelocity;
 
     [Header("Gravity")]
     public float baseGravity = 2f;
@@ -68,8 +69,14 @@ public class player_movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // ... (existing velocity tracking)
-        lastYVelocity = rb.linearVelocity.y;
+        // Capture velocity while airborne
+        // IMPORTANT: We ignore 0 velocity here because if the physics engine stops the player
+        // on the same frame we run this, we don't want to overwrite our high fall speed with 0
+        // before the GroundCheck triggers the damage.
+        if (!isGrounded && rb.linearVelocity.y < -0.1f)
+        {
+            airVelocity = rb.linearVelocity.y;
+        }
 
         GroundCheck();
         processWallSlide();
@@ -204,13 +211,24 @@ public class player_movement : MonoBehaviour
         
         if (Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer))
         {
-            jumpsRemaining = maxJumps;
+            // Fix for Triple Jump Bug:
+            // Only reset jumps if we are NOT moving upwards.
+            // This prevents the game from resetting our jumps immediately after we press jump
+            // but before we physically leave the ground trigger.
+            if (rb.linearVelocity.y < 0.1f)
+            {
+                jumpsRemaining = maxJumps;
+            }
             isGrounded = true;
 
-            // Check for Fall Damage upon landing
-            if (!wasGrounded && lastYVelocity < -fallDamageThreshold)
+            // Check for Fall Damage upon landing using tracked airVelocity
+            if (!wasGrounded)
             {
-                ApplyFallDamage(Mathf.Abs(lastYVelocity));
+                // Debug.Log($"Landed! Impact Speed: {airVelocity}"); // Uncomment to debug impact speeds
+                if (airVelocity < -fallDamageThreshold)
+                {
+                    ApplyFallDamage(Mathf.Abs(airVelocity));
+                }
             }
         }
         else
@@ -227,7 +245,7 @@ public class player_movement : MonoBehaviour
             float excessSpeed = impactSpeed - fallDamageThreshold;
             int damage = minFallDamage + Mathf.RoundToInt(excessSpeed * damageMultiplier);
             
-            Debug.Log($"Hard Landing! Speed: {impactSpeed}, Damage: {damage}");
+            // Debug.Log($"Hard Landing! Speed: {impactSpeed}, Damage: {damage}");
             health.TakeDamage(damage);
         }
     }

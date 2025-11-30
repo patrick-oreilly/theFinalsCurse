@@ -6,6 +6,7 @@ public class EnemyPatrol : MonoBehaviour
     public float patrolSpeed = 2f;
     public float chaseSpeed = 4f; // Faster when chasing
     public float checkRadius = 0.2f; // Size of the check bubble
+    public float wallCheckDistance = 1.0f; // Distance to check for walls
     public Transform groundDetection;
     public LayerMask groundLayer; 
     
@@ -26,7 +27,7 @@ public class EnemyPatrol : MonoBehaviour
     private float chaseStopTimer;
     public float chaseStopDelay = 1.0f; // Keep chasing for 1 second after losing player
 
-    private void Update()
+    private void FixedUpdate()
     {
         // 1. Check for Player
         DetectPlayer();
@@ -53,21 +54,40 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Keep empty or use for non-physics logic like timers if needed
+    }
+
     private void DetectPlayer()
     {
-        // Simple distance check or OverlapCircle
+        // 1. Initial Range Check
         Collider2D player = Physics2D.OverlapCircle(transform.position, detectionRange, playerLayer);
         
         if (player != null)
         {
-            playerTransform = player.transform;
-            isChasing = true;
+            // Strict Check: Only chase objects tagged "Player"
+            if (!player.CompareTag("Player")) return;
+
+            // 2. Line of Sight Check (Prevent seeing through walls)
+            Vector2 directionToPlayer = player.transform.position - transform.position;
+            float distanceToPlayer = directionToPlayer.magnitude;
+            
+            // Raycast from enemy to player. We use 'groundLayer' to check for walls/obstacles.
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToPlayer, distanceToPlayer, groundLayer);
+
+            if (hit.collider == null)
+            {
+                // No wall in the way!
+                playerTransform = player.transform;
+                isChasing = true;
+                return;
+            }
         }
-        else
-        {
-            isChasing = false;
-            playerTransform = null;
-        }
+
+        // If player null OR wall in the way
+        isChasing = false;
+        playerTransform = null;
     }
 
     private void ChasePlayer()
@@ -83,9 +103,6 @@ public class EnemyPatrol : MonoBehaviour
         if (moveDirection > 0 && !movingRight) Flip();
         else if (moveDirection < 0 && movingRight) Flip();
         
-        // Optional: Stop chasing if about to fall off a cliff (Safety Check)
-        // You can copy the cliff check here if you want them to be smart, 
-        // or leave it out if you want them to recklessly jump off ledges for you.
         CheckForEdges(); 
     }
 
@@ -100,23 +117,26 @@ public class EnemyPatrol : MonoBehaviour
 
     private void CheckForEdges()
     {
-        // Check for edges (Ground Check)
-        bool isGrounded = Physics2D.OverlapCircle(groundDetection.position, checkRadius, groundLayer);
+        // 1. Edge Check (Cliff)
+        // Raycast DOWN from the groundDetection point (which should be IN FRONT of the enemy)
+        RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, checkRadius + 0.5f, groundLayer);
         
-        // Check for walls (Wall Check)
+        // 2. Wall Check
+        // Raycast FORWARD from the BODY CENTER (transform.position)
         Vector2 direction = movingRight ? Vector2.right : Vector2.left;
-        RaycastHit2D wallInfo = Physics2D.Raycast(groundDetection.position, direction, checkRadius * 2f, groundLayer);
+        RaycastHit2D wallInfo = Physics2D.Raycast(transform.position, direction, wallCheckDistance, groundLayer);
 
-        // If NO ground detected (Cliff) OR Wall detected
-        if (!isGrounded || wallInfo.collider != null)
+        // If NO ground detected ahead (Cliff) OR Wall detected
+        if (groundInfo.collider == null || wallInfo.collider != null)
         {
-            // If we are chasing, we might want to be braver, but for now let's stick to safety.
-            // The issue might be that we flip, then immediately detect a cliff on the other side if the collider is weird.
-            
-            // Only flip if we are actually moving into the danger zone
+            if (wallInfo.collider != null)
+            {
+                Debug.Log($"Wall Detected: {wallInfo.collider.name}. IsChasing: {isChasing}");
+            }
+
             if (isChasing)
             {
-                // If chasing, stop moving instead of flipping endlessly
+                // Stop if chasing to avoid falling
                 rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             }
             else
@@ -126,9 +146,16 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
+    private float flipCooldown = 0.5f;
+    private float lastFlipTime;
+
     private void Flip()
     {
+        if (Time.time < lastFlipTime + flipCooldown) return; // Prevent rapid flipping
+
+        Debug.Log("Flipping Direction!");
         movingRight = !movingRight;
+        lastFlipTime = Time.time;
         
         if (movingRight)
         {
@@ -157,13 +184,14 @@ public class EnemyPatrol : MonoBehaviour
             // Draw Ground Check (Sphere)
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(groundDetection.position, checkRadius);
+            Gizmos.DrawLine(groundDetection.position, groundDetection.position + Vector3.down * (checkRadius + 0.5f));
 
-            // Draw Wall Check (Line)
+            // Draw Wall Check (Line) from BODY CENTER
             Vector3 direction = movingRight ? Vector3.right : Vector3.left;
-            if (!Application.isPlaying) direction = transform.right;
+            if (!Application.isPlaying) direction = transform.right; // Approximation in editor
             
             Gizmos.color = Color.blue;
-            Gizmos.DrawLine(groundDetection.position, groundDetection.position + direction * (checkRadius * 2f));
+            Gizmos.DrawLine(transform.position, transform.position + direction * wallCheckDistance);
         }
     }
 }

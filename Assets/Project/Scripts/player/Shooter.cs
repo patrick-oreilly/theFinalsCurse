@@ -59,7 +59,7 @@ public class Shooter : MonoBehaviour
     public Vector2 minThrowForce = new Vector2(10f, 2f); // Low arc
     public Vector2 maxThrowForce = new Vector2(5f, 15f); // High arc
     [Range(0, 1)] public float currentAimT = 0.5f; // 0 = min (straight), 1 = max (high arc)
-    public float aimAdjustSpeed = 2f;
+    public float aimAdjustSpeed = 0.5f;
     public LayerMask trajectoryCollisionMask; // Layers that stop the line (Ground, Walls)
 
     private void Update()
@@ -74,27 +74,18 @@ public class Shooter : MonoBehaviour
              isFacingRight = transform.localScale.x > 0;
         }
 
-        // Aim Adjustment (W = Up, S = Down)
-        if (playerMovement != null)
+        // Aim Adjustment
+        if (isIncreasingArc)
         {
-            float verticalInput = playerMovement.currentInput.y;
-            if (verticalInput > 0.1f)
-            {
-                currentAimT += aimAdjustSpeed * Time.deltaTime;
-            }
-            else if (verticalInput < -0.1f)
-            {
-                currentAimT -= aimAdjustSpeed * Time.deltaTime;
-            }
-            currentAimT = Mathf.Clamp01(currentAimT);
+            currentAimT += aimAdjustSpeed * Time.deltaTime;
         }
+        else if (isDecreasingArc)
+        {
+            currentAimT -= aimAdjustSpeed * Time.deltaTime;
+        }
+        currentAimT = Mathf.Clamp01(currentAimT);
 
-        // Toggle Aim Line (Press 'T')
-        if (Keyboard.current != null && Keyboard.current.tKey.wasPressedThisFrame)
-        {
-            isAimingVisible = !isAimingVisible;
-            Debug.Log($"Aiming Toggled: {isAimingVisible}");
-        }
+
 
         // Draw Trajectory if we have ammo AND aiming is visible
         if (currentAmmo > 0 && isAimingVisible)
@@ -107,14 +98,19 @@ public class Shooter : MonoBehaviour
         }
     }
 
-    private bool isAimingVisible = true; // Default to visible
+    private bool isAimingVisible = false; // Default to invisible
+
+    public Vector3 aimOffset = new Vector3(0.5f, 0.5f, 0f); // Offset from FirePoint
 
     private void DrawTrajectory()
     {
         if (trajectoryLine == null) return;
 
         Vector2 force = GetCurrentThrowForce();
-        Vector2 startPos = firePoint.position;
+        // Apply offset based on facing direction
+        float xOffset = isFacingRight ? aimOffset.x : -aimOffset.x;
+        Vector2 startPos = firePoint.position + new Vector3(xOffset, aimOffset.y, 0);
+        
         Vector2[] points = new Vector2[trajectoryResolution];
         
         Vector2 previousPos = startPos;
@@ -151,10 +147,10 @@ public class Shooter : MonoBehaviour
         }
         
         // Debugging: Print once per second to avoid spam
-        if (Time.frameCount % 60 == 0) 
-        {
-            Debug.Log($"Drawing Line: {validPointCount} points. Start: {points[0]}, End: {points[validPointCount-1]}");
-        }
+        // if (Time.frameCount % 60 == 0) 
+        // {
+        //     Debug.Log($"Drawing Line: {validPointCount} points. Start: {points[0]}, End: {points[validPointCount-1]}");
+        // }
     }
 
     private Vector2 GetCurrentThrowForce()
@@ -195,8 +191,22 @@ public class Shooter : MonoBehaviour
         if (context.performed)
         {
             isAimingVisible = !isAimingVisible;
-            Debug.Log($"Aiming Toggled: {isAimingVisible}");
         }
+    }
+
+    private bool isIncreasingArc = false;
+    private bool isDecreasingArc = false;
+
+    public void OnIncreaseArc(InputAction.CallbackContext context)
+    {
+        if (context.performed) isIncreasingArc = true;
+        else if (context.canceled) isIncreasingArc = false;
+    }
+
+    public void OnDecreaseArc(InputAction.CallbackContext context)
+    {
+        if (context.performed) isDecreasingArc = true;
+        else if (context.canceled) isDecreasingArc = false;
     }
 
     private void Shoot()
@@ -221,7 +231,6 @@ public class Shooter : MonoBehaviour
     public void EnableGoldenMode()
     {
         isGoldenMode = true;
-        Debug.Log("Golden Mode Activated!");
     }
     
     public void CollectBall()
@@ -236,8 +245,6 @@ public class Shooter : MonoBehaviour
             {
                 audioSource.PlayOneShot(pickupSound);
             }
-            
-            Debug.Log($"Ball Collected! Ammo: {currentAmmo}");
         }
     }
 

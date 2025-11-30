@@ -32,7 +32,7 @@ public class Health : MonoBehaviour
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        Debug.Log($"{gameObject.name} took {amount} damage. Current Health: {currentHealth}");
+        // Debug.Log($"{gameObject.name} took {amount} damage. Current Health: {currentHealth}");
 
         OnHealthChanged?.Invoke(currentHealth);
 
@@ -45,7 +45,9 @@ public class Health : MonoBehaviour
         // Shake Camera if Player is hurt
         if (gameObject.CompareTag("Player") && CameraShake.Instance != null)
         {
-            CameraShake.Instance.Shake(0.3f); // Moderate shake for player damage
+            // Scale shake with damage amount
+            float shakeIntensity = Mathf.Clamp(amount * 0.02f, 0.3f, 1.5f);
+            CameraShake.Instance.Shake(shakeIntensity); 
         }
 
         if (currentHealth <= 0)
@@ -59,14 +61,14 @@ public class Health : MonoBehaviour
         currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        Debug.Log($"{gameObject.name} healed {amount}. Current Health: {currentHealth}");
+        // Debug.Log($"{gameObject.name} healed {amount}. Current Health: {currentHealth}");
 
         OnHealthChanged?.Invoke(currentHealth);
     }
 
     private void Die()
     {
-        Debug.Log($"{gameObject.name} died!");
+        // Debug.Log($"{gameObject.name} died!");
         
         if (deathSound != null && audioSource != null)
         {
